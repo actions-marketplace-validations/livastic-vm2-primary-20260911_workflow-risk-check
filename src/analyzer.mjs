@@ -60,8 +60,10 @@ export function analyzeWorkflow(input, name = "workflow.yml") {
     return {...result,error:"File too large. Maximum 240,000 characters per workflow."};
   }
   let wf;
+  let doc;
+  const lineCounter = new YAML.LineCounter();
   try {
-    const doc = YAML.parseDocument(input, {uniqueKeys:true, version:"1.2"});
+    doc = YAML.parseDocument(input, {uniqueKeys:true, version:"1.2", lineCounter});
     if(doc.errors.length) throw new Error(doc.errors[0].message);
     wf = doc.toJS({maxAliasCount:100});
   } catch (e) {
@@ -76,8 +78,27 @@ export function analyzeWorkflow(input, name = "workflow.yml") {
   const events = normalizeEvents(wf.on);
   result.events = events;
   const findings = result.findings;
+  const jobNames=Object.keys(wf.jobs).sort((a,b)=>b.length-a.length);
+  const lineFor = where => {
+    try {
+      let keys;
+      if(where.startsWith("workflow / "))keys=[where.slice("workflow / ".length)];
+      else if(where.startsWith("jobs.")){
+        const rest=where.slice("jobs.".length);
+        const id=jobNames.find(k=>rest===k || rest.startsWith(k+"."));
+        if(!id)return 1;
+        keys=["jobs",id];
+        const tail=rest.slice(id.length);
+        for(const match of tail.matchAll(/\.([a-zA-Z0-9_-]+)|\[(\d+)\]/g)){
+          keys.push(match[1] || Number(match[2])-1);
+        }
+      }else return 1;
+      const n=doc.getIn(keys,true);
+      return n?.range && n.range[0]>=0 ? lineCounter.linePos(n.range[0]).line : 1;
+    }catch{return 1;}
+  };
   const add = (severity, id, title, where, description, recommendation, source) => {
-    findings.push({severity, id, title, where, description, recommendation, source});
+    findings.push({severity, id, title, where, description, recommendation, source, line:lineFor(where)});
   };
   const hasPullRequest = events.includes("pull_request");
   const hasPullRequestTarget = events.includes("pull_request_target");

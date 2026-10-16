@@ -27,7 +27,13 @@ jobs:
       - name: Confirm committed action bundle matches build
         run: git diff --exit-code -- dist/index.cjs
       - name: Self-check the repository workflows using the action
+        id: preflight
         uses: ./
         with:
           directory: .github/workflows
           fail_level: high
+          sarif_file: ci-reports/workflow-risk.sarif
+      - name: Validate generated SARIF report
+        run: |
+          test -f ci-reports/workflow-risk.sarif
+          node -e "const f=require('./ci-reports/workflow-risk.sarif'); if(f.version!=='2.1.0'||!Array.isArray(f.runs)||f.runs.length!==1) process.exit(1);"

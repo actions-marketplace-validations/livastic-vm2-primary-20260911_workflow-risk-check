@@ -5,6 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {analyzeWorkflow} from "./analyzer.mjs";
+import {writeSarif} from "./sarif.mjs";
 
 const INPUT = name => process.env["INPUT_"+name] || "";
 const escapeProp = value => String(value).replaceAll("%","%25").replaceAll("\r","%0D").replaceAll("\n","%0A").replaceAll(":","%3A").replaceAll(",","%2C");
@@ -101,6 +102,12 @@ export function main(){
     ]);
     const summary=markdownSummary(report,failLevel);
     if(process.env.GITHUB_STEP_SUMMARY)fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,summary,"utf8");
+    const sarifFile=INPUT("SARIF_FILE");
+    if(sarifFile.trim()){
+      const sarifPath=writeSarif(report,root,sarifFile);
+      appendEnv("GITHUB_OUTPUT",["sarif_path="+sarifPath]);
+      console.log("SARIF v2.1.0 saved locally to "+sarifPath);
+    }
     console.log(`Workflow Risk Check: ${report.files} files, ${report.counts.high} high, ${report.counts.medium} medium, ${report.counts.note} notes.`);
     if(report.failed)process.exitCode=1;
   } catch(err){

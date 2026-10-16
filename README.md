@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # example vetted pinned checkout commit
-      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.1.0
+      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.0
         with:
           directory: .github/workflows
           fail_level: high # high | medium | none
@@ -48,10 +48,42 @@ Inputs:
 - `directory`: checked-out repo-relative folder, default `.github/workflows`
 - `fail_level`: `high` (default), `medium` or `none`
 - `max_files`: 1–100, default 40
+- `sarif_file`: optional checkout-relative path ending in `.sarif` or `.sarif.json`; disabled by default
 
-Outputs: `high_count`, `medium_count`, `note_count`, `files_scanned`. Missing/malformed files, oversized YAML, invalid paths and unsafe path traversal fail closed. The action skips symlinks and does not execute analyzed workflow contents.
+Outputs: `high_count`, `medium_count`, `note_count`, `files_scanned`, and `sarif_path` when configured. Missing/malformed files, oversized YAML, invalid paths and unsafe path traversal fail closed. The action skips symlinks and does not execute analyzed workflow contents.
 
-The source and bundled action are MIT licensed, reviewed by 20 automated tests and exercised by this repository's own CI. The scanner is still heuristic; passing does not guarantee a secure repository.
+The source and bundled action are MIT licensed, reviewed by 27 automated tests and exercised by this repository's own CI. The scanner is still heuristic; passing does not guarantee a secure repository.
+
+### Optional SARIF v2.1.0 report for GitHub Code Scanning
+
+The action can write a local SARIF report containing stable rule identifiers, severity, workflow file paths and detected YAML line numbers. It **does not upload the report**. You decide whether to upload it with GitHub Code Scanning; this requires a separately authorized action and `security-events: write`.
+
+Example for a trusted `push` branch:
+
+```yaml
+name: Workflow Code Scanning
+on: [push]
+permissions:
+  contents: read
+  security-events: write # required only for upload-sarif
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.0
+        id: preflight
+        with:
+          fail_level: none
+          sarif_file: artifacts/workflow-risk.sarif
+      - uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
+        if: always()
+        with:
+          sarif_file: artifacts/workflow-risk.sarif
+          category: workflow-risk-check
+```
+
+For production, pin **both** third-party actions to reviewed full commit SHAs; the `@v1.2.0` line is shown only for human readability. Restrict write permissions and avoid running untrusted PR code in a job with privileged credentials. The scanner itself makes no network calls, and reports contain finding descriptions/locations rather than full source YAML. Confirm results manually, especially policy settings and dynamic execution paths.
 
 ## Local development
 
