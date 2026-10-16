@@ -1,0 +1,31 @@
+name: "Workflow Risk Check CI — Local-First Security Preflight"
+description: "Check GitHub Actions YAML for risky permissions, mutable actions, and unsafe trust boundaries, with no uploads or external network calls."
+author: "Workflow Risk Check"
+inputs:
+  directory:
+    description: "Path relative to the checkout root containing workflow YAML files."
+    required: false
+    default: ".github/workflows"
+  fail_level:
+    description: "Exit with a failure if findings at or above this level exist: high, medium, or none."
+    required: false
+    default: "high"
+  max_files:
+    description: "Maximum number of workflow YAML files to read (1–100)."
+    required: false
+    default: "40"
+outputs:
+  high_count:
+    description: "Total high-severity findings."
+  medium_count:
+    description: "Total medium-severity findings."
+  note_count:
+    description: "Total advisory findings."
+  files_scanned:
+    description: "Number of checked YAML files."
+runs:
+  using: "node24"
+  main: "dist/index.cjs"
+branding:
+  icon: "shield"
+  color: "blue"

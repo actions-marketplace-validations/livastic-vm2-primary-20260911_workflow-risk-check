@@ -18,7 +18,7 @@
     <a href="#top" class="brand" aria-label="Workflow Risk Check, home"><span class="brand-mark">/W</span><span>WORKFLOW<span class="brand-faint">RISK</span></span></a>
     <nav aria-label="Main navigation">
       <a href="#checker">Free checker</a>
-      <a href="#service">Fix service</a>
+      <a href="#ci">CI action</a><a href="#service">Fix service</a>
       <a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check" target="_blank" rel="noreferrer">Source <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
@@ -77,7 +77,31 @@
         <article><div class="value-icon">↗</div><h3>From finding to fix</h3><p>Use the Markdown report in an issue, or request a scoped remediation PR from a qualified maintainer.</p></article>
       </div>
     </section>
-    <section class="service-section" id="service">
+<section class="automation-section container" id="ci">
+  <div class="automation-copy">
+    <div class="eyebrow">ALWAYS-ON / FREE GITHUB ACTION</div>
+    <h2>Put the check<br><em>in every pull request.</em></h2>
+    <p>Run the same preflight automatically in CI. Your workflow files stay on the GitHub runner; the action has no external API calls and only needs read access.</p>
+    <div class="automation-points"><span>✓ Zero API keys</span><span>✓ PR annotations</span><span>✓ Configurable failure threshold</span></div>
+    <a class="btn btn-secondary" target="_blank" rel="noopener noreferrer" href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check#run-it-in-github-actions-free">See GitHub Action setup <span aria-hidden="true">↗</span></a>
+  </div>
+  <div class="automation-code">
+    <div class="pane-head"><span class="file-tab">workflow-risk-check.yml</span><span class="pane-note">COPY INTO .github/workflows/</span></div>
+    <pre><code><span class="code-muted"># Run on pull requests</span>
+<span class="code-key">on:</span> [pull_request]
+<span class="code-key">permissions:</span>
+  contents: read
+<span class="code-key">jobs:</span>
+  workflow-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: <span class="code-accent">livastic-vm2-primary-20260911/workflow-risk-check@v1.1.0</span>
+        with:
+          fail_level: high</code></pre>
+    <p>Example for readability; pin actions to reviewed commit SHAs in production.</p>
+  </div>
+</section>\n        <section class="service-section" id="service">
       <div class="container service-layout">
         <div><div class="eyebrow">THE SERVICE / SCOPE-AGREED WORK</div><h2>Want those findings<br><em>actually fixed?</em></h2>
         <p>Get a practical hardening pass for GitHub Actions, with focused changes and a clear explanation. Work begins only after we agree on repository access, exact scope, delivery, and payment terms.</p>

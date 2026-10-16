@@ -19,6 +19,40 @@ Findings include an identifier, a location, the risk rationale, a suggested chan
 
 **Limitations:** This is a heuristic preflight for one file, not a security audit or assurance of safety. It cannot resolve external actions, repository/org security defaults, event provenance, dynamic flow, secrets management, or runtime behavior. An empty report is not proof of secure CI.
 
+## Run it in GitHub Actions (free)
+
+The same checks can run on every pull request. This repository also contains a **bundled, network-free Node action**: after checkout, the action reads workflow YAML from the GitHub runner filesystem, adds issue annotations, writes a step summary, and optionally fails the job for high/medium findings. It does not require a token or send workflow text to an external service.
+
+Example `.github/workflows/workflow-risk-check.yml`:
+
+```yaml
+name: Workflow Security Preflight
+on: [pull_request, push]
+permissions:
+  contents: read
+jobs:
+  inspect-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # example vetted pinned checkout commit
+      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.1.0
+        with:
+          directory: .github/workflows
+          fail_level: high # high | medium | none
+          max_files: "40"
+```
+
+**Supply-chain hardening:** Production workflows should pin the `workflow-risk-check` action to a **reviewed full immutable commit SHA** rather than a moving release tag, and update it intentionally.
+
+Inputs:
+- `directory`: checked-out repo-relative folder, default `.github/workflows`
+- `fail_level`: `high` (default), `medium` or `none`
+- `max_files`: 1–100, default 40
+
+Outputs: `high_count`, `medium_count`, `note_count`, `files_scanned`. Missing/malformed files, oversized YAML, invalid paths and unsafe path traversal fail closed. The action skips symlinks and does not execute analyzed workflow contents.
+
+The source and bundled action are MIT licensed, reviewed by 20 automated tests and exercised by this repository's own CI. The scanner is still heuristic; passing does not guarantee a secure repository.
+
 ## Local development
 
 Requires Node 20+.

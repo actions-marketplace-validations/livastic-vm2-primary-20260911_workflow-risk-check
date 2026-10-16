@@ -24,3 +24,10 @@ jobs:
         run: npm run build
       - name: Confirm committed site matches build
         run: git diff --exit-code -- docs/assets
+      - name: Confirm committed action bundle matches build
+        run: git diff --exit-code -- dist/index.cjs
+      - name: Self-check the repository workflows using the action
+        uses: ./
+        with:
+          directory: .github/workflows
+          fail_level: high

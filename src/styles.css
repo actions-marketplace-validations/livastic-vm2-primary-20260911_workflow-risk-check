@@ -83,3 +83,16 @@ footer{border-top:1px solid var(--line);background:#071221;padding:23px 0 27px}.
 @media(max-width:980px){.mini-grid{grid-template-columns:repeat(2,1fr);gap:20px}.mini-grid>div{padding-left:0;border:0}.service-layout{gap:28px}.tool-layout{grid-template-columns:1fr}.results-empty{min-height:390px;padding-top:60px}.results-output{max-height:none;min-height:200px}.editor-pane textarea{min-height:290px}}
 @media(max-width:660px){.container{width:min(var(--max),calc(100% - 30px))}.nav{height:77px}.nav nav{gap:14px}.nav nav a{font-size:11px}.nav nav a:nth-child(3){display:none}.hero{padding:78px 0 70px}.hero h1{font-size:42px}.lead{font-size:15px}.hero-meta{gap:11px 19px}.mini-grid{grid-template-columns:1fr 1fr}.mini-grid span{font-size:10px}.tool-section{padding-block:70px}.section-index{display:none}.section-heading{margin-bottom:24px}.editor-buttons .btn{flex:1}.editor-buttons{gap:7px}.value-section{padding:40px 0 75px}.value-grid{grid-template-columns:1fr}.service-layout{grid-template-columns:1fr;padding-block:65px}.service-layout h2{font-size:38px}.faq{padding-block:65px}.faq-grid{grid-template-columns:1fr;gap:19px}.footer-inner{align-items:flex-start;flex-direction:column}.footer-muted{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* GitHub Action section */
+.automation-section{display:grid;grid-template-columns:1fr 1.05fr;gap:48px;align-items:center;padding-block:43px 112px;scroll-margin-top:30px}
+.automation-copy>p{color:#a6bdcf;max-width:480px;line-height:1.85;margin:16px 0 21px;font-size:14px}
+.automation-points{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px}
+.automation-points span{border:1px solid #2c5363;background:#0d293d;border-radius:20px;padding:5px 11px;font-size:10px;color:#8ce4d0}
+.automation-code{border:1px solid #315872;border-radius:12px;background:#0b1d31;box-shadow:0 25px 80px #0002;overflow:hidden}
+.automation-code pre{margin:0;overflow:auto;padding:25px 24px;color:#bfdaef;font:12px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace}
+.automation-code code{font:inherit;white-space:pre}
+.automation-code .code-muted{color:#6d9cb9}.automation-code .code-key{color:#a9b9ff}.automation-code .code-accent{color:#8de6d1}
+.automation-code>p{padding:0 24px 17px;margin:0;color:#7994ad;font-size:11px;line-height:1.5}
+@media(max-width:980px){.automation-section{grid-template-columns:1fr;gap:22px;padding-bottom:85px}.automation-code pre{white-space:pre;overflow:auto}}
+@media(max-width:660px){.automation-code pre{font-size:10px}.automation-section h2{font-size:33px}}
