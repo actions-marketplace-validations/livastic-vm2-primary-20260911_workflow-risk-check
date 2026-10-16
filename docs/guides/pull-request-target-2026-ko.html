@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071427">
+<title>2026년 11월 GitHub pull_request_target 정책 변경: 점검 방법과 보안 체크리스트</title>
+<meta name="description" content="2026년 11월 2일 GitHub pull_request_target 기본 정책 시행을 앞두고 영향받는 공개 저장소를 확인하고, 권한·체크아웃·PR 워크플로를 안전하게 점검하는 한국어 가이드.">
+<meta property="og:title" content="GitHub pull_request_target 2026년 11월 변경 대응 가이드">
+<meta property="og:description" content="공개 저장소의 적용 조건, Policy insights, 위험한 fork 코드 실행 패턴, 안전한 전환 체크리스트를 안내합니다.">
+<link rel="canonical" href="https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/pull-request-target-2026-ko.html">
+<link rel="alternate" hreflang="ko" href="https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/pull-request-target-2026-ko.html">
+<link rel="alternate" hreflang="en" href="https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/pull-request-target-2026.html">
+<link rel="stylesheet" href="../assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"2026년 11월 GitHub pull_request_target 정책 변경: 보안 점검 체크리스트","inLanguage":"ko-KR","datePublished":"2026-10-16","dateModified":"2026-10-16","author":{"@type":"Organization","name":"Workflow Risk Check"},"mainEntityOfPage":"https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/pull-request-target-2026-ko.html"}</script>
+</head>
+<body>
+<header class="nav container"><a class="brand" href="../"><span class="brand-mark">/W</span><span>WORKFLOW<span class="brand-faint">RISK</span></span></a><nav><a href="../#checker">무료 검사</a><a href="../#ci">GitHub Action</a><a href="../#service">수정 서비스</a></nav></header>
+<main class="article-layout container">
+<article class="article-content">
+<div class="eyebrow">GITHUB ACTIONS / 2026년 10월 16일 확인</div>
+<h1>2026년 11월 <code>pull_request_target</code> 정책 변경, 우리 CI는 괜찮을까?</h1>
+<p class="article-lead">GitHub는 <strong>2026년 11월 2일</strong>부터 일정한 공개 저장소에서 <code>pull_request_target</code> 이벤트 실행을 기본 차단하는 정책을 시행한다고 안내합니다. 모든 저장소에 동일하게 적용되는 것은 아닙니다. 변경 대상을 구분하고, 무턱대고 정책을 허용하는 대신 실제 보안 경계를 살펴보는 방법을 정리했습니다.</p>
+<div class="article-note"><strong>먼저 확인할 점:</strong> GitHub가 설명한 기본 정책은 해당 이벤트에 대한 적용 가능한 Actions 정책이 없는 <strong>공개 저장소</strong>를 대상으로 합니다. 비공개·내부 저장소에는 이 기본 정책이 적용되지 않으며, 이미 적용되는 정책이 있다면 그 정책을 우선 확인해야 합니다. YAML 파일 검사 결과만으로 차단 대상 여부를 확정할 수 없습니다.</div>
+
+<h2>1. <code>pull_request_target</code> 사용처 찾기</h2>
+<p>먼저 저장소의 워크플로 YAML에서 해당 트리거가 존재하는지 확인하세요. 아래 명령은 파일을 읽기만 하며 저장소 설정을 수정하지 않습니다.</p>
+<pre><code>grep -RIn --include='*.yml' --include='*.yaml' \
+  'pull_request_target' .github/workflows</code></pre>
+<p>검색 결과가 있으면 저장소명, 파일명, 해당 Job에서 필요한 권한, PR에서 실제 실행되는 코드의 출처를 기록하세요. <strong>이 이벤트의 존재 자체가 취약점이거나 실행 차단 확정이라는 뜻은 아닙니다.</strong></p>
+
+<h2>2. Repository Policy insights에서 실제 영향 확인</h2>
+<p>GitHub 공식 문서에 따르면 관련 기본 이벤트 정책은 시행 전에 <em>evaluate</em> 모드로 동작하여 워크플로 실행은 유지하면서, 실제 시행 시 차단될 항목을 확인하도록 돕습니다. 적절한 관리자 권한으로 <strong>Settings → Actions → Policies → Policy insights</strong>를 확인하세요. 조직 또는 엔터프라이즈 정책이 우선 적용되는지도 살펴봐야 합니다.</p>
+<p>환경에 따라 메뉴 표시와 접근 권한이 다를 수 있습니다. 설정 화면에서 직접 확인한 정책 상태를 기준으로 판단하세요.</p>
+
+<h2>3. 권한 없는 PR 코드와 권한 있는 자동화를 분리</h2>
+<div class="decision-grid">
+<div><h3>테스트·빌드 목적이라면</h3><p>외부 기여자가 제출한 PR 코드를 컴파일·테스트하는 목적이라면 가능한 한 <code>pull_request</code> 이벤트로 실행하고, 토큰 권한을 최소화하세요. 포크에서 발생한 PR의 토큰·비밀정보 제한을 고려하여 Job을 설계해야 합니다.</p></div>
+<div><h3>라벨·리뷰 자동화 등 신뢰 작업이라면</h3><p>라벨 등록·PR 메타데이터 수정 같은 신뢰 작업은 별도로 분리하고, 해당 Job에 필요한 최소한의 <code>GITHUB_TOKEN</code> 권한만 부여하세요. 권한이 있는 컨텍스트에서 외부 PR 코드나 스크립트를 실행하지 않아야 합니다.</p></div>
+</div>
+<p>기존 CI가 계속 돌아가게 하려고 넓은 예외를 추가하는 것은 안전한 해결책이 아닐 수 있습니다. 정책 예외는 목적·실행 코드·리뷰 책임자를 확인한 뒤 좁게 설정하세요.</p>
+
+<h2>4. 위험한 PR HEAD 체크아웃 패턴</h2>
+<p>특히 위험한 조합은 <code>pull_request_target</code>의 권한 있는 컨텍스트에서 외부 PR의 HEAD 코드를 체크아웃하고, 이어서 그 코드가 제공한 스크립트를 실행하는 것입니다. GitHub Security Lab에서도 이런 신뢰 경계 문제를 안내합니다.</p>
+<pre><code># 아래는 위험한 예시입니다. 그대로 적용하지 마세요.
+on: pull_request_target
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: &#36;{{ github.event.pull_request.head.sha }}
+      - run: npm test  # 외부 PR 스크립트 실행 가능</code></pre>
+<p>일부 최신 체크아웃 도구는 이런 위험한 상황을 기본적으로 거부할 수 있습니다. 이 보호 기능을 무작정 해제해서는 안 됩니다. 다른 Git 명령이나 다운로드한 PR 산출물을 실행하는 경로 역시 함께 검토하세요.</p>
+
+<h2>5. 무료 사전 점검과 수정 문의</h2>
+<p><a href="../#checker">Workflow Risk Check 무료 검사기</a>는 브라우저에서 YAML을 읽고 위험한 권한 설정, 가변 태그 사용, 일부 PR 신뢰 경계 패턴을 찾아냅니다. 파일을 외부 서비스로 업로드하지 않으며, 같은 검사 기능을 <a href="../#ci">GitHub Action</a>으로 실행할 수도 있습니다.</p>
+<p>다만 검사기는 저장소 관리자 정책, 실제 설치된 타사 Action의 내부 동작, 모든 동적 실행 경로를 확인하지 못합니다. 결과가 깨끗하더라도 수동 리뷰가 필요합니다.</p>
+<div class="article-cta"><div><div class="eyebrow">무료 검사 / 범위 합의형 수정</div><h3>점검은 무료, 수정은 범위 확인 후</h3><p>무료 도구를 먼저 사용하고, 필요한 경우 GitHub 공개 이슈로 비민감한 범위만 전달해 견적을 요청할 수 있습니다. 소규모 저장소 수정 서비스 안내가는 미화 149달러부터이며 결제는 별도 합의 후 진행합니다.</p></div><div class="article-cta-buttons"><a class="btn btn-primary" href="../#checker">무료 검사 ↗</a><a class="btn btn-secondary" href="../#service">수정 견적 →</a></div></div>
+
+<h2>참고 자료와 작성 기준</h2>
+<p>이 글은 2026년 10월 16일 기준으로 공개된 GitHub 문서를 참고한 독립적인 실무 안내입니다. GitHub의 공식 발표문을 대체하지 않으며 정책 시행 세부 사항은 변경될 수 있습니다. 실제 운영 설정을 바꾸기 전 최신 문서를 재확인하세요.</p>
+<ul class="reference-list">
+<li><a href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target" target="_blank" rel="noopener noreferrer">GitHub 공식 문서: Securely using pull_request_target ↗</a></li>
+<li><a href="https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution" target="_blank" rel="noopener noreferrer">GitHub 공식 문서: Actions workflow 실행 정책 관리 ↗</a></li>
+<li><a href="pull-request-target-2026.html">English version of this guide ↗</a></li>
+</ul>
+</article>
+<aside class="article-sidebar"><div class="aside-card"><div class="eyebrow">일정 확인</div><h3>주요 날짜</h3><p><strong>2026년 10월 16일</strong><br>이 가이드의 문서 검증 기준일</p><p><strong>2026년 11월 2일</strong><br>GitHub 공식 문서상의 기본 정책 시행 예정일</p><div class="aside-rule"></div><p>실제 적용 조건은 해당 공개 저장소의 조직·이벤트 정책 설정에 따라 달라질 수 있습니다.</p><a href="../#checker">무료 YAML 검사하기 ↗</a></div></aside>
+</main>
+<footer><div class="container footer-inner"><div><span class="brand-mark">/W</span> Workflow Risk Check</div><div><a href="../">홈</a><span>·</span><a href="pull-request-target-2026.html">English</a></div></div></footer>
+</body></html>
