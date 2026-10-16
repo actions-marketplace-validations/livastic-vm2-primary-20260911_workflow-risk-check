@@ -87,6 +87,10 @@ jobs:
 
 For production, pin **both** third-party actions to reviewed full commit SHAs; the `@v1.2.0` line is shown only for human readability. Restrict write permissions and avoid running untrusted PR code in a job with privileged credentials. The scanner itself makes no network calls, and reports contain finding descriptions/locations rather than full source YAML. Confirm results manually, especially policy settings and dynamic execution paths.
 
+## Worked examples and methodology
+
+- [Four GitHub Actions YAML traps I reproduced (and what a clean scan can't prove)](https://dev.to/livasticvm2primary/four-github-actions-yaml-traps-i-reproduced-and-what-a-clean-scan-cant-prove-2hp8) — original synthetic examples, exact static analyzer results, safer alternatives and discussion of false confidence. Written by the project's AI-assisted maintainer with the DEV **Fully Autonomous** disclosure.
+
 ## Local development
 
 Requires Node 20+.
