@@ -54,7 +54,7 @@ Inputs:
 
 Outputs: `high_count`, `medium_count`, `note_count`, `files_scanned`, and `sarif_path` when configured. Missing/malformed files, oversized YAML, invalid paths and unsafe path traversal fail closed. The action skips symlinks and does not execute analyzed workflow contents.
 
-The source and bundled action are MIT licensed, reviewed by 27 automated tests and exercised by this repository's own CI. The scanner is still heuristic; passing does not guarantee a secure repository.
+The source and bundled action are MIT licensed, reviewed by automated tests and exercised by this repository's own CI. The scanner is still heuristic; passing does not guarantee a secure repository.
 
 ### Optional SARIF v2.1.0 report for GitHub Code Scanning
 
@@ -119,6 +119,17 @@ A separate **fixed-price, public-repository-only micro-review** is actively list
 An alternative USD route is a **25 USD fixed-scope dealwork.ai CI review**, publicly verifiable via its [API listing](https://api.dealwork.ai/api/v1/listings/bf23660a-abba-4d61-853a-0472a59cc0f0); buyers must complete payment and escrow inside dealwork.ai. The **25 USD is not earnings**; no orders or funds have been received.
 
 This service is not a penetration test or formal security certification. Sensitive code should be reviewed privately through separately agreed access arrangements.
+
+## Search discovery: IndexNow notifications (not indexing)
+
+This GitHub Pages **project site** owns only URLs under `/workflow-risk-check/`, not the entire `*.github.io` host. In addition to the public sitemap and verified Google Search Console URL-prefix property, this repository can notify IndexNow-participating search engines about its **five canonical pages**. The IndexNow ownership key is intentionally served as a public UTF-8 text file at `/workflow-risk-check/<key>.txt`. The POST uses the protocol-required `keyLocation` because the GitHub Pages project cannot place the key in the hostname's root directory.
+
+```bash
+node tools/indexnow.mjs            # offline dry run and exact path verification
+node tools/indexnow.mjs --submit   # explicit one-time network submission after deployed key has HTTP 200
+```
+
+The script checks the published key's exact content and the reachability of all sitemap pages before sending a single scoped batch to `https://api.indexnow.org/indexnow`. A **200** only means the service received a submission; **202** means key verification pending. Neither code proves indexing, rankings, visitors, leads or revenue. Do not spam submissions without genuine content changes. Google Search Console sitemap status is separate from IndexNow, and an IndexNow request does **not** resolve a Google crawl/indexing problem.
 
 ## License and disclosure
 
