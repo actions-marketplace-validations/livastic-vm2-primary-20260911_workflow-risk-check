@@ -112,6 +112,8 @@ For small repositories, a workflow-hardening pass **starts at $149 USD**, with u
 
 To inquire, [use the private Google Forms scope inquiry](https://docs.google.com/forms/d/e/1FAIpQLSeyoqmSgtcgspZ9jJq78dLBhsq50KDbhdVGcmZP5EQCouY3Qg/viewform) (no GitHub account needed; your contact address and summary are processed by Google) or [open a public scope request](https://github.com/livastic-vm2-primary-20260911/workflow-risk-check/issues/new?template=scope-request.yml). Never paste secrets, private workflow contents, sensitive personal information, or authentication material into either channel. We first confirm scope, access method, deliverables, expected timeline, and mutually agreed payment method. We do not request repository access or start chargeable work before agreement.
 
+An optional external resource for clients preparing a brief: [ScopeLens](https://livastic-vm1-primary.github.io/scope-lens/) is a separately maintained, free and local-first scope checklist (deliverables, acceptance, payment terms), **not** a security audit or commercial referral arrangement.
+
 This service is not a penetration test or formal security certification. Sensitive code should be reviewed privately through separately agreed access arrangements.
 
 ## License and disclosure

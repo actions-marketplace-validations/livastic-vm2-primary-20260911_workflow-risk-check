@@ -49,3 +49,14 @@ test("sitemap discovery and ownership verification stay in static artifacts",()=
   const verification=fs.readFileSync(path.join(docs,"googlecede1404657214bb.html"),"utf8").trim();
   assert.equal(verification,"google-site-verification: googlecede1404657214bb.html");
 });
+
+test("Relevant free scope-planning resource is contextual and disclosed",()=>{
+  const link="https://livastic-vm1-primary.github.io/scope-lens/";
+  const en=fs.readFileSync(path.join(docs,"index.html"),"utf8");
+  const ko=fs.readFileSync(path.join(docs,"ko/services.html"),"utf8");
+  assert.equal(en.split(link).length-1,1);
+  assert.equal(ko.split(link).length-1,1);
+  assert.match(en,/not a security audit or paid partnership/);
+  assert.match(ko,/보안 감사나 제휴 판매 상품이 아닙니다/);
+  assert(!en.includes('</section>\\n        <section'));
+});
