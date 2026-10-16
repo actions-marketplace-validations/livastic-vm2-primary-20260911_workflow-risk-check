@@ -1,0 +1,45 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import {fileURLToPath} from "node:url";
+import {analyzeWorkflow} from "../src/analyzer.mjs";
+
+const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+const read=file=>fs.readFileSync(path.join(repo,file),"utf8");
+const sample=read("examples/synthetic-paid-preflight-sample.md");
+const expectedLink="https://clawlancer.ai/marketplace/bec9d133-5388-4ecb-ad42-98bcf961ad4e";
+
+test("fixed-price marketplace offer is distinguished from larger PR package",()=>{
+ const homepage=read("docs/index.html");
+ const ko=read("docs/ko/services.html");
+ const readme=read("README.md");
+ for(const [file,text] of [["homepage",homepage],["Korean service page",ko],["README",readme]]){
+  assert(text.includes(expectedLink),file+" must link publicly verifiable listing");
+  assert(text.includes("25 USDC"),file+" must disclose true listing price");
+  assert(text.includes("149"),file+" must retain larger, quote-only project");
+  assert(text.includes("synthetic-paid-preflight-sample.md"),file+" must link non-client sample report");
+ }
+ assert.match(homepage,/No paid orders or settled revenue are claimed/);
+ assert.match(ko,/아직 실제 구매 및 지급은 확인되지 않았습니다/);
+});
+
+test("synthetic reported detections reproduce exact severity and source lines",()=>{
+ const match=[...sample.matchAll(/```yaml\n([\s\S]*?)\n```/g)];
+ assert.equal(match.length,2,"sample includes original numbered YAML and proposed replacement");
+ const unsafe=match[0][1].split("\n").map(x=>x.replace(/^(?:\d {2}|\d{2} )/, "")).join("\n");
+ const x=analyzeWorkflow(unsafe,"pr-check.yml");
+ assert.equal(x.error,undefined);
+ assert.deepEqual(x.counts,{high:1,medium:2,note:1});
+ assert.deepEqual(Object.fromEntries(x.findings.map(f=>[f.id,f.line])),
+   {TARGET_UNTRUSTED_CODE:8,ACTION_UNPINNED:8,WORKFLOW_WRITE:3,TARGET_CONTEXT:2});
+});
+
+test("synthetic replacement eliminates selected rule matches, not all external risk",()=>{
+ const blocks=[...sample.matchAll(/```yaml\n([\s\S]*?)\n```/g)];
+ const safe=analyzeWorkflow(blocks[1][1],"pr-check.yml");
+ assert.equal(safe.error,undefined);
+ assert.deepEqual(safe.counts,{high:0,medium:0,note:0});
+ assert.match(sample,/not proof/i);
+ assert.match(sample,/not a paid order/);
+});
