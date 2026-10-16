@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071427">
+<title>GitHub pull_request_target policy: November 2, 2026 readiness checklist | Workflow Risk Check</title>
+<meta name="description" content="An operator-focused checklist for GitHub's November 2, 2026 default pull_request_target policy enforcement. Identify affected repositories, read policy insights, and harden workflows.">
+<meta property="og:title" content="GitHub's November 2026 pull_request_target policy: practical readiness checklist">
+<meta property="og:description" content="What changes, which public repositories are affected, and how to check the event without running untrusted PR code in a privileged job.">
+<link rel="canonical" href="https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/pull-request-target-2026.html">
+<link rel="stylesheet" href="../assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"GitHub pull_request_target policy: November 2, 2026 readiness checklist","datePublished":"2026-10-16","dateModified":"2026-10-16","author":{"@type":"Organization","name":"Workflow Risk Check"},"mainEntityOfPage":"https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/pull-request-target-2026.html"}</script>
+</head>
+<body>
+<header class="nav container"><a href="../" class="brand"><span class="brand-mark">/W</span><span>WORKFLOW<span class="brand-faint">RISK</span></span></a><nav><a href="../#checker">Free checker</a><a href="../#ci">CI action</a><a href="../#service">Fix service</a></nav></header>
+<main class="article-layout container">
+  <article class="article-content">
+    <div class="eyebrow">ENGINEERING NOTE / UPDATED OCT 16, 2026</div>
+    <h1>GitHub's November 2026 <code>pull_request_target</code> policy: a readiness checklist.</h1>
+    <p class="article-lead">On <strong>November 2, 2026</strong>, GitHub says it will enforce a default policy blocking <code>pull_request_target</code> runs in affected public repositories. Here's how to identify workflows that need a decision—and how to avoid converting a compatibility fix into a security problem.</p>
+    <div class="article-note"><strong>Scope matters.</strong> According to GitHub's current guidance, the default policy targets public repositories without an applicable Actions event policy. It does <em>not</em> apply to private or internal repositories and does not replace an applicable existing policy. A YAML scan alone cannot determine whether a specific repository will be blocked.</div>
+    <h2>1. Find workflows that use the event</h2>
+    <p>Search your checked-out repository for the event in <code>.github/workflows</code>. This does not require any credentials and does not change existing configuration.</p>
+    <pre><code>grep -RIn --include='*.yml' --include='*.yaml' \
+  'pull_request_target' .github/workflows</code></pre>
+    <p>If you have many repositories, repeat the check for each organization/repository. Record the repository, workflow path, job, and reason for using a privileged event. <strong>Presence is not proof of a vulnerability or a guaranteed block.</strong></p>
+    <h2>2. Check the repository's actual policy insights</h2>
+    <p>For affected public repositories, GitHub says the default event policy is currently in <em>evaluate</em> mode: workflow runs continue, while policy insights indicate what would be blocked under enforcement. Repository administrators can inspect Actions policies and policy insights from repository settings. The same settings exist at organization or enterprise level for appropriately authorized administrators.</p>
+    <p>Official navigation: <strong>Settings → Actions → Policies → Policy insights</strong>, where supported. Confirm the applicable policy and its intended effect instead of assuming that every <code>pull_request_target</code> workflow will stop.</p>
+    <h2>3. Make a deliberate decision, not a blanket allow rule</h2>
+    <div class="decision-grid">
+      <div><h3>Option A: use <code>pull_request</code> where possible</h3><p>When the job's purpose is to build or test code from external contributors without privileged repository access, prefer <code>pull_request</code>. Fork PR workflows are subject to reduced token privileges and secret restrictions; ensure your job does not unnecessarily request writes.</p></div>
+      <div><h3>Option B: retain a narrow trusted workflow</h3><p>If the job must label, triage, or perform trusted side effects, keep the privileged step separate from untrusted PR code. Use minimum token permissions, avoid executing checkout content from the fork, and review applicable policy configuration with the repository administrator.</p></div>
+    </div>
+    <p>Don't enable a broad exception merely to make the previous CI status green. GitHub's documented policy mechanisms can allow required events in a carefully scoped way, but that decision should be justified by your trust model.</p>
+    <h2>4. Review the dangerous checkout-and-execute pattern</h2>
+    <p>A particularly risky flow occurs when <code>pull_request_target</code> is used and the workflow checks out an external PR head, then executes files from it in a privileged job. GitHub documents this as a “pwn request” pattern. It is not enough to check the event name; follow which code is actually executed.</p>
+    <pre><code># Illustrative insecure pattern: DO NOT COPY into production
+on: pull_request_target
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: &#36;{{ github.event.pull_request.head.sha }}
+      - run: npm test  # executes untrusted PR content in privileged context</code></pre>
+    <p>Later <code>checkout</code> protections may reject some unsafe fork-head checkouts by default. That is a safety control, <strong>not</strong> a reason to turn on <code>allow-unsafe-pr-checkout</code> indiscriminately. The same hazard can appear through <code>git fetch</code>, downloading PR artifacts, dependency scripts, or alternative checkout mechanisms.</p>
+    <h2>5. Add a repeatable, read-only preflight</h2>
+    <p><a href="../#checker">Workflow Risk Check</a> flags the use of <code>pull_request_target</code> for review and identifies selected risky combinations of checkout, permissions, self-hosted runners, and script execution. It runs locally in the browser or as a <a href="../#ci">GitHub Action</a>. It cannot check organization policy configuration, approval history, every path that runs untrusted code, or the runtime behavior of third-party actions.</p>
+    <p>If the scanner finds a high-severity pattern, examine the steps and data flow manually. If it finds nothing, you still need to check event policies and actual job security boundaries.</p>
+    <div class="article-cta">
+      <div><span class="eyebrow">TOOLS & REMEDIATION</span><h3>Free scan first. Scoped fixes when needed.</h3><p>Use the no-upload checker now. For a small repo with several workflows, request a non-sensitive scope review before sharing any private code.</p></div>
+      <div class="article-cta-buttons"><a class="btn btn-primary" href="../#checker">Run free checker ↗</a><a class="btn btn-secondary" href="../#service">Ask about a fix →</a></div>
+    </div>
+    <h2>References and limitations</h2>
+    <p>This is an operational interpretation of publicly documented GitHub guidance available on October 16, 2026—not an official GitHub announcement. Policy dates and enforcement details may change. Confirm current settings and official documentation before changing production CI.</p>
+    <ul class="reference-list">
+      <li><a href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target" target="_blank" rel="noopener noreferrer">GitHub Docs: Securely using pull_request_target ↗</a></li>
+      <li><a href="https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution" target="_blank" rel="noopener noreferrer">GitHub Docs: Governing execution of GitHub Actions workflows ↗</a></li>
+    </ul>
+  </article>
+  <aside class="article-sidebar">
+    <div class="aside-card"><div class="eyebrow">QUICK READ</div><h3>Key dates</h3><p><strong>Oct 16, 2026</strong><br>Guide last verified</p><p><strong>Nov 2, 2026</strong><br>GitHub's announced default policy enforcement date</p><div class="aside-rule"></div><p>Applicable only to the public-repo policy cohort described in GitHub's official documentation.</p><a href="../#checker">Free workflow check ↗</a></div>
+  </aside>
+</main>
+<footer><div class="container footer-inner"><div><span class="brand-mark">/W</span> Workflow Risk Check</div><div><a href="../">Home</a><span>·</span><a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check">Source</a></div></div></footer>
+</body></html>
