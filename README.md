@@ -106,6 +106,8 @@ Open http://localhost:8000 to check locally.
 
 `src/analyzer.mjs` contains the rules. `src/app.mjs` is a browser-only UI with DOM text insertion rather than rendering user YAML as HTML. `docs/` is deployable on any static web host.
 
+Browse all scoped options in [Workflow Guard's bilingual service homepage](https://livastic-vm2-primary-20260911.github.io/) (the original check remains free).
+
 ## Paid, scoped fix service
 
 For small repositories, a workflow-hardening pass **starts at $149 USD**, with up to 5 GitHub Actions YAML workflows, a scoped remediation PR, and one review round **after scope/quote agreement**. This is an inquiry-only offer; no checkout, guarantee, or client contract currently exists on this site.
