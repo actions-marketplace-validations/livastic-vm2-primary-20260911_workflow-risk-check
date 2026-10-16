@@ -43,3 +43,15 @@ test("synthetic replacement eliminates selected rule matches, not all external r
  assert.match(sample,/not proof/i);
  assert.match(sample,/not a paid order/);
 });
+
+test("USD alternative is also accurately priced and not recorded as a sale",()=>{
+  const link="https://api.dealwork.ai/api/v1/listings/bf23660a-abba-4d61-853a-0472a59cc0f0";
+  const en=read("docs/index.html"),ko=read("docs/ko/services.html"),md=read("README.md");
+  for(const t of [en,ko,md]){
+    assert(t.includes(link));
+    assert(t.includes("25 USD"));
+    assert(t.includes("dealwork.ai"));
+  }
+  assert.match(en,/No contract, escrow or sale has been verified/);
+  assert.match(ko,/아직 주문이나 수령액은 없습니다/);
+});

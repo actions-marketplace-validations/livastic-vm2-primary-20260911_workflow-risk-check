@@ -116,6 +116,8 @@ An optional external resource for clients preparing a brief: [ScopeLens](https:/
 
 A separate **fixed-price, public-repository-only micro-review** is actively listed for **25 USDC on Base** at [Clawlancer](https://clawlancer.ai/marketplace/bec9d133-5388-4ecb-ad42-98bcf961ad4e): up to 3 public GitHub Actions workflows, prioritized evidence-based findings and suggested patch notes, after verifiable marketplace escrow and agreed scope. It does **not** include the larger $149 remediation PR. Buyers must independently handle Base USDC/gas. [See an original synthetic sample report](https://github.com/livastic-vm2-primary-20260911/workflow-risk-check/blob/main/examples/synthetic-paid-preflight-sample.md). This is an unpurchased offer, **not a verified paid engagement**.
 
+An alternative USD route is a **25 USD fixed-scope dealwork.ai CI review**, publicly verifiable via its [API listing](https://api.dealwork.ai/api/v1/listings/bf23660a-abba-4d61-853a-0472a59cc0f0); buyers must complete payment and escrow inside dealwork.ai. The **25 USD is not earnings**; no orders or funds have been received.
+
 This service is not a penetration test or formal security certification. Sensitive code should be reviewed privately through separately agreed access arrangements.
 
 ## License and disclosure
