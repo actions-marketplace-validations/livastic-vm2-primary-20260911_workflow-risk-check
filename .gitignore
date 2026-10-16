@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+.DS_Store
+accounts/
+credentials.json
+*.pem
+*.key
+logs/

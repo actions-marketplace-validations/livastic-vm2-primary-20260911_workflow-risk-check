@@ -1,0 +1,11 @@
+{
+  "name":"workflow-risk-check",
+  "version":"1.0.0",
+  "private":true,
+  "type":"module",
+  "description":"Local-first GitHub Actions workflow risk checker with actionable findings",
+  "scripts":{"test":"node --test tests/*.test.mjs","build":"mkdir -p docs/assets && npx esbuild src/app.mjs --bundle --format=iife --target=es2020 --minify --outfile=docs/assets/app.js && cp src/styles.css docs/assets/styles.css","check":"npm test && npm run build"},
+  "dependencies":{"yaml":"^2.8.1"},
+  "devDependencies":{"esbuild":"^0.25.9"},
+  "engines":{"node":">=20"}
+}

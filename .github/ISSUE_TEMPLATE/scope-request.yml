@@ -1,0 +1,55 @@
+name: Request a scoped workflow review
+description: Start a public, non-sensitive inquiry about paid GitHub Actions remediation. No secrets.
+title: "[Scope request] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest. This is a **public issue**. Do not include tokens, private YAML, proprietary source code, personal data, credentials, or recovery phrases. The published starting price is $149 USD, but no work or payment is due until we agree on scope and terms.
+  - type: input
+    id: public_repo
+    attributes:
+      label: Public repository link (optional)
+      description: Omit if the repo is private.
+      placeholder: https://github.com/example/repository
+    validations:
+      required: false
+  - type: dropdown
+    id: workflow_count
+    attributes:
+      label: Approximately how many workflow YAML files need review?
+      options:
+        - 1–2
+        - 3–5
+        - More than 5
+        - Not sure
+    validations:
+      required: true
+  - type: checkboxes
+    id: objectives
+    attributes:
+      label: What would you like to improve?
+      options:
+        - label: GITHUB_TOKEN permission scope
+        - label: Action/reusable-workflow pinning
+        - label: pull_request_target / workflow_run boundaries
+        - label: Runner and secret isolation
+        - label: Other or unclear
+  - type: textarea
+    id: summary
+    attributes:
+      label: Non-sensitive project summary
+      description: Summarize desired outcomes without pasting source/configuration.
+      placeholder: We have several GitHub Actions workflows and would like a least-privilege permissions review.
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Understand the process
+      options:
+        - label: I understand this request is public and will not include secrets or private information.
+          required: true
+        - label: I understand the quote and delivery terms must be agreed before paid work starts.
+          required: true

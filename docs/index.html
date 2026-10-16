@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071427">
+  <meta name="description" content="Check GitHub Actions workflow YAML for common risky configurations, entirely in your browser. Free static checks and a scoped remediation service.">
+  <meta property="og:title" content="Workflow Risk Check — GitHub Actions security preflight">
+  <meta property="og:description" content="Find risky permissions, mutable actions, and untrusted workflow boundaries. Run a local-first static check without uploading your YAML.">
+  <title>Workflow Risk Check — local-first GitHub Actions security preflight</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="halo halo-one" aria-hidden="true"></div>
+  <div class="halo halo-two" aria-hidden="true"></div>
+  <header class="nav container">
+    <a href="#top" class="brand" aria-label="Workflow Risk Check, home"><span class="brand-mark">/W</span><span>WORKFLOW<span class="brand-faint">RISK</span></span></a>
+    <nav aria-label="Main navigation">
+      <a href="#checker">Free checker</a>
+      <a href="#service">Fix service</a>
+      <a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check" target="_blank" rel="noreferrer">Source <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main id="top">
+    <section class="hero container">
+      <div class="eyebrow"><span class="led"></span> FREE & OPEN SOURCE · RUNS IN YOUR BROWSER</div>
+      <h1>Your workflows ship code.<br><em>Check what they trust.</em></h1>
+      <p class="lead">Catch common GitHub Actions security footguns before they reach your default branch. Paste a workflow, get concrete findings, and see what to change—without uploading the file.</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#checker">Run the free check <span aria-hidden="true">↗</span></a><a class="btn btn-secondary" href="#service">Need the fix done? <span aria-hidden="true">→</span></a></div>
+      <div class="hero-meta"><span>✓ No account</span><span>✓ No tracking</span><span>✓ Client-side parsing</span><span>✓ Shareable Markdown report</span></div>
+    </section>
+    <section class="trust-strip"><div class="container mini-grid">
+      <div><strong>01</strong><span>GITHUB_TOKEN scopes</span></div>
+      <div><strong>02</strong><span>Mutable action refs</span></div>
+      <div><strong>03</strong><span>Untrusted PR execution</span></div>
+      <div><strong>04</strong><span>Runner & secret exposure</span></div>
+    </div></section>
+    <section class="tool-section container" id="checker">
+      <div class="section-heading"><div><div class="eyebrow">THE CHECKER / FREE</div><h2>Inspect your workflow.</h2><p>Paste a <code>.github/workflows/*.yml</code> file or select it locally. No network request is made for the contents.</p></div><div class="section-index">SECURITY PRECHECK / 01</div></div>
+      <div class="tool-layout">
+        <div class="editor-pane">
+          <div class="pane-head"><span class="file-tab"><span class="file-icon">◆</span> workflow.yml</span><span class="pane-note">YAML · 240 KB max</span></div>
+          <label class="sr-only" for="workflow-input">GitHub Actions workflow YAML</label>
+          <textarea id="workflow-input" spellcheck="false" placeholder="name: Example&#10;on: pull_request&#10;permissions:&#10;  contents: read&#10;jobs:&#10;  test:&#10;    runs-on: ubuntu-latest&#10;    steps:&#10;      - uses: actions/checkout@v4"></textarea>
+          <div class="editor-footer"><span class="local-badge">● LOCAL / PRIVATE</span><span id="input-size" aria-live="polite">0 characters</span></div>
+          <div class="editor-buttons">
+            <button class="btn btn-primary" id="scan-btn" type="button">Analyze workflow <span aria-hidden="true">↗</span></button>
+            <button class="btn btn-secondary" id="sample-btn" type="button">Load example</button>
+            <label class="btn btn-secondary upload" for="file-input">Choose .yml file <input id="file-input" type="file" accept=".yml,.yaml,text/yaml" aria-label="Choose YAML file"></label>
+            <button class="text-button" id="clear-btn" type="button">Clear</button>
+          </div>
+          <p class="micro-note">This tool only applies static heuristics. It does not execute workflow code, contact your repositories, or establish that a workflow is secure.</p>
+        </div>
+        <div class="results-pane" aria-live="polite" aria-atomic="false">
+          <div class="pane-head"><span class="file-tab">↳ Diagnostic report</span><span class="pane-note" id="analysis-status">READY</span></div>
+          <div id="results-empty" class="results-empty">
+            <div class="radar"><div class="radar-core">⌕</div></div>
+            <h3>No workflow analyzed yet.</h3><p>Your findings will appear here with practical remediation guidance and links to source documentation.</p>
+            <div class="privacy-line"><span aria-hidden="true">◈</span> Your YAML stays in this tab.</div>
+          </div>
+          <div id="results-output" class="results-output" hidden>
+            <div id="results-summary" class="results-summary"></div>
+            <div class="results-actions"><button class="small-btn" id="copy-report" type="button">Copy Markdown report</button><span id="copy-status" role="status"></span></div>
+            <div id="results-list" class="findings"></div>
+            <p class="micro-note">Absence of findings does not mean safe. Check third-party actions, script behavior, job conditions, repository defaults, and branch protections manually.</p>
+          </div>
+          <div id="results-error" class="results-error" role="alert" hidden></div>
+        </div>
+      </div>
+    </section>
+    <section class="value-section container">
+      <div class="eyebrow">WHY THIS EXISTS</div><h2>Security fixes shouldn't<br>start with guesswork.</h2>
+      <div class="value-grid">
+        <article><div class="value-icon">◎</div><h3>Readable findings</h3><p>Get a precise job/step location, impact explanation, and next action—not a mysterious risk score.</p></article>
+        <article><div class="value-icon">⌁</div><h3>Private by design</h3><p>Workflow contents are parsed locally with bundled code. No registration, telemetry, or document upload.</p></article>
+        <article><div class="value-icon">↗</div><h3>From finding to fix</h3><p>Use the Markdown report in an issue, or request a scoped remediation PR from a real developer.</p></article>
+      </div>
+    </section>
+    <section class="service-section" id="service">
+      <div class="container service-layout">
+        <div><div class="eyebrow">THE SERVICE / HUMAN-REVIEWED SCOPE</div><h2>Want those findings<br><em>actually fixed?</em></h2>
+        <p>Get a practical hardening pass for GitHub Actions, with focused changes and a clear explanation. Work begins only after we agree on repository access, exact scope, delivery, and payment terms.</p>
+        <div class="service-tags"><span>Least-privilege tokens</span><span>Action pinning</span><span>PR trust boundaries</span><span>Reproducible PR</span></div>
+        </div>
+        <div class="price-card"><div class="price-label">STARTING PRICE / QUOTE REQUIRED</div><div class="price"><span>$</span>149 <span class="currency">USD</span></div><p class="price-sub">Small-repository GitHub Actions remediation</p><div class="price-divider"></div>
+          <ul><li>Initial review of up to 5 workflow YAML files</li><li>Documented issues with priority levels</li><li>One focused remediation pull request</li><li>One follow-up review round</li></ul>
+          <a class="btn btn-primary" href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check/issues/new?template=scope-request.yml" target="_blank" rel="noreferrer">Request a scope & quote <span aria-hidden="true">↗</span></a>
+          <p class="price-note">Public GitHub issue intake. Do not include credentials, private workflow details, or secrets. Quote and delivery depend on fit and availability. No payment is collected on this page.</p>
+        </div>
+      </div>
+    </section>
+    <section class="faq container">
+      <div class="section-heading"><div><div class="eyebrow">DETAILS</div><h2>Read before you rely on it.</h2></div></div>
+      <div class="faq-grid">
+        <div><h3>Is this a complete security audit?</h3><p>No. It checks selected, high-signal patterns in a single workflow file. It cannot inspect runtime behavior, repository settings, external actions, or other workflows.</p></div>
+        <div><h3>Does the checker transmit my YAML?</h3><p>No. The parser and analyzer run in your browser and the interface has no document-upload or analytics endpoint. Source links only open if you click them.</p></div>
+        <div><h3>Are unpinned tags always vulnerable?</h3><p>No. Mutable refs are a supply-chain exposure, not proof of an active compromise. Findings are prompts for review and control improvements.</p></div>
+        <div><h3>How do I request paid help?</h3><p>Open a public scope issue with non-sensitive context. We'll confirm access method, exact deliverables, timeline, and fixed quote before any paid work starts.</p></div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="container footer-inner"><div><span class="brand-mark">/W</span> Workflow Risk Check <span class="footer-muted">— open source · made for maintainers</span></div><div><a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check">GitHub</a><span>·</span><a href="#top">Back to top ↑</a></div></div><p class="container footer-disclaimer">Educational static analysis. Not a security certification, penetration test, guarantee, or legal/compliance advice. Check findings against your particular threat model.</p></footer>
+</body></html>
