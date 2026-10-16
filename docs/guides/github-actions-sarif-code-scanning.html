@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071427">
+<title>How to add SARIF Code Scanning for GitHub Actions workflows (2026)</title>
+<meta name="description" content="Practical 2026 tutorial: scan GitHub Actions YAML locally, generate SARIF v2.1.0 with line numbers, upload it to GitHub Code Scanning using least-privilege tokens, and review findings.">
+<meta property="og:title" content="GitHub Actions SARIF Code Scanning in 2026 — a practical setup">
+<meta property="og:description" content="Run a local-first GitHub Actions workflow preflight and optionally upload SARIF alerts. Copyable workflow, permission guidance and limitations.">
+<link rel="canonical" href="https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/github-actions-sarif-code-scanning.html">
+<link rel="stylesheet" href="../assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How to add SARIF Code Scanning for GitHub Actions workflows","datePublished":"2026-10-16","dateModified":"2026-10-16","author":{"@type":"Organization","name":"Workflow Risk Check"},"inLanguage":"en-US","mainEntityOfPage":"https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/guides/github-actions-sarif-code-scanning.html"}</script>
+</head>
+<body>
+<header class="nav container"><a href="../" class="brand"><span class="brand-mark">/W</span><span>WORKFLOW<span class="brand-faint">RISK</span></span></a><nav><a href="../#checker">Free checker</a><a href="../#ci">CI action</a><a href="../#service">Fix service</a></nav></header>
+<main class="article-layout container">
+<article class="article-content">
+<div class="eyebrow">HOW-TO / SARIF 2.1.0 / OCTOBER 2026</div>
+<h1>Turn GitHub Actions workflow checks into <em>Code Scanning alerts.</em></h1>
+<p class="article-lead">A workflow YAML preflight is useful in the terminal. A SARIF report makes its results portable: you can preserve rule IDs, severity and source locations, then optionally display findings in GitHub's Code Scanning interface. This guide uses an open-source, browser-first scanner with a local GitHub Action.</p>
+<div class="article-note"><strong>Scope:</strong> Workflow Risk Check is a lightweight <em>heuristic static preflight</em>, not a security audit. It checks selected GitHub Actions patterns; it does not execute the workflow, analyze arbitrary dependencies, read organization policies or prove that your CI is safe. Pair it with mature analyzers such as actionlint and zizmor for broader coverage.</div>
+
+<h2>1. Decide whether to upload or keep reports local</h2>
+<p>The scanner can run with just <code>contents: read</code> and writes diagnostics to the GitHub job log and step summary. Its SARIF output is <strong>off by default</strong>. If you only want a local report, provide <code>sarif_file</code> and keep it on the runner or save it as a build artifact through an appropriately pinned action. You do not need <code>security-events: write</code> merely to generate a file.</p>
+<p>For GitHub Code Scanning alerts, however, you need to upload the SARIF file using GitHub's <code>upload-sarif</code> action. GitHub documents this for public repositories and certain organization-owned private repositories with Code Security enabled. The upload step needs <code>security-events: write</code>. Avoid granting that permission to arbitrary execution of untrusted PR code.</p>
+
+<h2>2. Copy a minimal workflow</h2>
+<p>The following workflow runs on <code>push</code>, checks files under <code>.github/workflows</code>, and uploads a local SARIF report. The scanner is separately versioned and uses no hosted scanning service or API key. For production hardening, pin <em>all</em> external Actions—including Workflow Risk Check—to reviewed full commit SHAs instead of mutable version tags.</p>
+<pre><code>name: Workflow security preflight
+on: [push]
+
+permissions:
+  contents: read
+  security-events: write # only needed by the upload step
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Inspect workflow YAML
+        uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.0
+        id: preflight
+        with:
+          directory: .github/workflows
+          fail_level: none
+          sarif_file: artifacts/workflow-risk.sarif
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
+        if: always()
+        with:
+          sarif_file: artifacts/workflow-risk.sarif
+          category: workflow-risk-check</code></pre>
+<p>The scanner version tag above is deliberately readable for illustration. Replace it with a reviewed full commit hash from the <a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check/releases/tag/v1.2.0">v1.2.0 release</a>. The CodeQL upload reference in the example was resolved to a full commit at the guide's publication date, and should still be reviewed before deployment.</p>
+
+<h2>3. Read the findings without overclaiming</h2>
+<p>The scanner currently checks for broad <code>GITHUB_TOKEN</code> write scopes, mutable external action references, selected unsafe <code>pull_request_target</code> trust boundaries, direct shell interpolation of event data, self-hosted runner exposure, and other related patterns. It emits annotations and SARIF v2.1.0 records with the YAML location when identifiable.</p>
+<p>Results have <strong>high</strong>, <strong>medium</strong>, or <strong>note</strong> levels. A high finding indicates a potentially dangerous pattern, not a proven compromise. Medium findings require context; not every mutable action tag is an exploit. A clean report only means these selected rules did not find a match.</p>
+<p>If you prefer a standalone blocking check, set <code>fail_level: high</code> or <code>medium</code> and omit Code Scanning upload entirely. For a Code Scanning upload job, <code>fail_level: none</code> keeps the job available to upload findings even when high alerts are present. A separate protected branch policy can require the appropriate security review.</p>
+
+<h2>4. Keep file paths stable and protect your runner</h2>
+<p>GitHub matches repeat code scanning results by rule ID, location and fingerprints. This scanner includes stable rule IDs and relative paths. GitHub's <code>upload-sarif</code> action can calculate missing partial fingerprints when source files are present. Use the same <code>category</code> across repeat uploads, and a distinct category if you upload separate analyses for the same commit.</p>
+<p>The report writer rejects absolute paths, repository traversal and symlinked output directories. YAML files are parsed locally; the tool does not upload them itself. The external <code>upload-sarif</code> step, if enabled, intentionally transfers the report to GitHub. Review report contents and job permissions under your organization's normal data-handling policies.</p>
+
+<div class="article-cta"><div><div class="eyebrow">TRY IT / NO ACCOUNT REQUIRED</div><h3>Start with one YAML file.</h3><p>Paste or select your workflow in the free browser checker. For teams with several workflows and complicated permissions, request a scoped remediation quote before sharing private code.</p></div><div class="article-cta-buttons"><a class="btn btn-primary" href="../#checker">Free preflight ↗</a><a class="btn btn-secondary" href="../#service">Request fixes →</a></div></div>
+
+<h2>Official references</h2>
+<ul class="reference-list">
+  <li><a href="https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/integrate-with-existing-tools/upload-sarif-file" target="_blank" rel="noopener noreferrer">GitHub Docs: Uploading a SARIF file to GitHub ↗</a></li>
+  <li><a href="https://docs.github.com/en/code-security/reference/code-scanning/sarif-files/sarif-support" target="_blank" rel="noopener noreferrer">GitHub Docs: SARIF support for code scanning ↗</a></li>
+  <li><a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check" target="_blank" rel="noopener noreferrer">Workflow Risk Check source and tests ↗</a></li>
+  <li><a href="pull-request-target-2026.html">Related guide: November 2026 pull_request_target changes ↗</a></li>
+</ul>
+<p>Published October 16, 2026. This is independent technical guidance, not an official GitHub support document. Verify current permissions and official guidance before changing a production workflow.</p>
+</article>
+<aside class="article-sidebar"><div class="aside-card"><div class="eyebrow">CHECKLIST</div><h3>Before enabling upload</h3><p><strong>1.</strong> Review action commit SHAs.</p><p><strong>2.</strong> Run scanner with minimum permissions.</p><p><strong>3.</strong> Emit SARIF to a relative path.</p><p><strong>4.</strong> Grant <code>security-events: write</code> only to the upload job.</p><p><strong>5.</strong> Avoid untrusted script execution with elevated credentials.</p><div class="aside-rule"></div><a href="../#checker">Try the free scanner ↗</a></div></aside>
+</main>
+<footer><div class="container footer-inner"><div><span class="brand-mark">/W</span> Workflow Risk Check</div><div><a href="../">Home</a><span>·</span><a href="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check">GitHub</a></div></div></footer>
+</body></html>
