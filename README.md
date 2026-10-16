@@ -2,6 +2,8 @@
 
 **Local-first GitHub Actions security preflight** with practical static findings. [Try the live checker](https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/).
 
+**한국어 안내:** [GitHub Actions 보안 설정 점검·수정 서비스](https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/ko/services.html) (무료 검사 및 범위 합의형 견적 안내).
+
 ## What it does
 
 Paste or open one `.github/workflows/*.yml` file in the browser to check selected high-signal patterns:
