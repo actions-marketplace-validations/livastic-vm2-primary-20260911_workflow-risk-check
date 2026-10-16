@@ -170,8 +170,8 @@ export function analyzeWorkflow(input, name = "workflow.yml") {
   }
   findings.sort((a,b)=>level[a.severity]-level[b.severity] || a.where.localeCompare(b.where));
   if(findings.length > 70) {
-    result.findings = findings.slice(0,70);
-    add("note","TRUNCATED","Findings limit reached","workflow","Only the first 70 results are shown.","Review action pins at repository scale with complementary linters.", DOCS.pin);
+    result.findings = findings.slice(0,69);
+    result.findings.push({severity:"note",id:"TRUNCATED",title:"Findings limit reached",where:"workflow",description:"The report shows a bounded sample of the findings.",recommendation:"Review action pins at repository scale with complementary linters.",source:DOCS.pin});
   }
   for(const f of result.findings) result.counts[f.severity] += 1;
   return result;
