@@ -36,4 +36,4 @@ jobs:
       - name: Validate generated SARIF report
         run: |
           test -f ci-reports/workflow-risk.sarif
-          node -e "const f=require('./ci-reports/workflow-risk.sarif'); if(f.version!=='2.1.0'||!Array.isArray(f.runs)||f.runs.length!==1) process.exit(1);"
+          node -e "const fs=require('node:fs'); const f=JSON.parse(fs.readFileSync('ci-reports/workflow-risk.sarif','utf8')); if(f.version!=='2.1.0'||!Array.isArray(f.runs)||f.runs.length!==1) process.exit(1);"
