@@ -24,6 +24,19 @@ test("fixed-price marketplace offer is distinguished from larger PR package",()=
  assert.match(ko,/아직 실제 구매 및 지급은 확인되지 않았습니다/);
 });
 
+test("4 USDC starter is a real original listed checkout but explicitly not received owner income",()=>{
+ const url="https://clawlancer.ai/marketplace/1be00886-ce81-4398-ab6a-d2322207a551";
+ const pages=[read("docs/index.html"),read("docs/ko/services.html"),read("README.md")];
+ for(const html of pages){
+  assert.equal((html.match(new RegExp(url,"g"))||[]).length,1);
+  assert(html.includes("4 USDC"),"starter must include exact listed USDC price");
+  assert(html.includes("300"),"starter must be one small workflow bounded by 300 lines");
+  assert(html.includes(expectedLink),"old $25 multi-file review stays available");
+ }
+ assert.match(pages[0],/no real buyer or payout has been verified/i);
+ assert.match(pages[1],/구매나 지급은 아직 0건/);
+ assert.match(pages[2],/no verified paid buyers or settled orders/i);
+});
 test("synthetic reported detections reproduce exact severity and source lines",()=>{
  const match=[...sample.matchAll(/```yaml\n([\s\S]*?)\n```/g)];
  assert.equal(match.length,2,"sample includes original numbered YAML and proposed replacement");
