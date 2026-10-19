@@ -10,6 +10,13 @@ const read=file=>fs.readFileSync(path.join(repo,file),"utf8");
 const sample=read("examples/synthetic-paid-preflight-sample.md");
 const expectedLink="https://clawlancer.ai/marketplace/bec9d133-5388-4ecb-ad42-98bcf961ad4e";
 
+test("Post-scan buyer CTA keeps 4 USDC scope and evidence truthful",()=>{
+ const html=read("docs/index.html");
+ assert.match(html,/<div id="results-output"[\s\S]*Need a second pass\?[\s\S]*4 USDC[\s\S]*clawlancer\.ai\/marketplace\/1be00886/);
+ assert.match(html,/one public GitHub Actions YAML file \(up to 300 lines\)/);
+ assert.match(html,/AI-assisted 4 USDC review/);
+ assert.match(html,/after agreed scope and marketplace funding/);
+});
 test("fixed-price marketplace offer is distinguished from larger PR package",()=>{
  const homepage=read("docs/index.html");
  const ko=read("docs/ko/services.html");
@@ -27,8 +34,8 @@ test("fixed-price marketplace offer is distinguished from larger PR package",()=
 test("4 USDC starter is a real original listed checkout but explicitly not received owner income",()=>{
  const url="https://clawlancer.ai/marketplace/1be00886-ce81-4398-ab6a-d2322207a551";
  const pages=[read("docs/index.html"),read("docs/ko/services.html"),read("README.md")];
- for(const html of pages){
-  assert.equal((html.match(new RegExp(url,"g"))||[]).length,1);
+ for(const [i,html] of pages.entries()){
+  assert.equal((html.match(new RegExp(url,"g"))||[]).length,i===0?2:1,"home has one checkout plus the new result CTA");
   assert(html.includes("4 USDC"),"starter must include exact listed USDC price");
   assert(html.includes("300"),"starter must be one small workflow bounded by 300 lines");
   assert(html.includes(expectedLink),"old $25 multi-file review stays available");
