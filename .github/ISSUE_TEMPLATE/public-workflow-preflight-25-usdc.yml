@@ -1,0 +1,65 @@
+name: "25-USDC public GitHub Actions preflight inquiry"
+description: "Ask for one fixed-scope, AI-assisted static review of up to 3 PUBLIC workflow YAML files. No order or payment is created."
+title: "[25-USDC preflight inquiry] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is an inquiry, not a purchase, invoice, payment request, or security audit.**
+        The optional fixed-scope report is offered at **25 native Circle USDC on Base** for one PUBLIC GitHub repository and up to three PUBLIC `.github/workflows/*.yml` or `*.yaml` files, subject to a separately agreed paid SOW.
+        The report can contain **no supported findings**. It is AI-assisted, evidence-cited, and is NOT security certification or a remediation PR.
+        **This issue is PUBLIC.** Do not include private source/YAML, customer files, secrets, GitHub tokens, wallet credentials, recovery phrases, or personal data.
+        The separate $149+ workflow-hardening/remediation PR scope is available through the other request template.
+  - type: input
+    id: public_repo_url
+    attributes:
+      label: Public GitHub repository URL
+      description: "Link to a repository you own or are authorized to have reviewed. No access invitation is needed."
+      placeholder: "https://github.com/organization/repository"
+    validations:
+      required: true
+  - type: textarea
+    id: workflow_paths
+    attributes:
+      label: Up to 3 public workflow paths
+      description: "Public repository-relative paths only; do not paste YAML or private information."
+      placeholder: |
+        .github/workflows/ci.yml
+        .github/workflows/release.yml
+    validations:
+      required: true
+  - type: dropdown
+    id: primary_concern
+    attributes:
+      label: Main concern
+      description: "Choose the highest-priority public workflow question."
+      options:
+        - "Permissions / GITHUB_TOKEN least privilege"
+        - "Untrusted pull_request_target or workflow_run boundary"
+        - "Mutable actions / reusable workflows / artifact provenance"
+        - "Shell interpolation and attacker-controlled inputs"
+        - "Other / uncertain static finding"
+    validations:
+      required: true
+  - type: textarea
+    id: non_sensitive_acceptance
+    attributes:
+      label: Non-sensitive question and desired evidence
+      description: "Explain what an acceptable written report would address without sharing confidential details."
+      placeholder: "Explain whether this public CI workflow has a trust-boundary risk and cite exact lines; suggested safe YAML changes if warranted."
+    validations:
+      required: true
+  - type: checkboxes
+    id: eligibility
+    attributes:
+      label: Scope and payment understanding
+      options:
+        - label: "I am authorized to commission a read-only review of the linked PUBLIC repository."
+          required: true
+        - label: "I understand the report is AI-assisted and can legitimately report no supported issue."
+          required: true
+        - label: "I understand 25 native Base Circle USDC is a PROPOSED price, not a payment now; a separate written paid SOW with scope, cancellation, acceptance and exact recipient must be agreed BEFORE any work."
+          required: true
+        - label: "I will not submit credentials, private YAML, personal data or wallet secrets in this PUBLIC issue."
+          required: true
