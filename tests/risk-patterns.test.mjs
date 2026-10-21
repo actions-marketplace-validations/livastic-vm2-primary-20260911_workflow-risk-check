@@ -25,3 +25,29 @@ test("workflow_run artifact downloads plus script steps are flagged",()=>{
   const yaml=["on: workflow_run","jobs:","  build:","    runs-on: ubuntu-latest","    steps:","      - uses: actions/download-artifact@v4","      - run: echo test"].join("\n");
   assert(list(yaml).includes("WORKFLOW_RUN_ARTIFACT"));
 });
+
+test("external reader paired controls for public GitHub Actions article",()=>{
+  const mk=(event, body, ref="")=>[
+    "on: "+event,
+    "permissions: {contents: write}",
+    "jobs:",
+    "  build:",
+    "    runs-on: ubuntu-latest",
+    "    steps:",
+    ...(ref ? ["      - uses: actions/checkout@v4","        with:","          ref: "+ref] : []),
+    "      - run: "+body
+  ].join("\n");
+  const safeExpr="$"+"{{ github.event.pull_request.base.sha }}";
+  const numberExpr="$"+"{{ github.event.number }}";
+  const remoteHead="refs/pull/"+numberExpr+"/head";
+  const reviewComment="$"+"{{ github.event.review_comment.body }}";
+  const reviewBody="$"+"{{ github.event.review.body }}";
+  const direct=mk("pull_request_review_comment","echo '"+reviewComment+"'");
+  const baseline=mk("pull_request_review","echo '"+reviewBody+"'");
+  assert(list(baseline).includes("SHELL_INTERPOLATION"),"baseline reviewer body must be detected");
+  assert(list(direct).includes("SHELL_INTERPOLATION"),"review_comment.body is equally author-controlled");
+  const headUntrusted=mk("pull_request_target","npm test",remoteHead);
+  const baseTrusted=mk("pull_request_target","npm test",safeExpr);
+  assert(list(headUntrusted).includes("TARGET_UNTRUSTED_CODE"),"refs/pull/N/head fetches untrusted code");
+  assert(!list(baseTrusted).includes("TARGET_UNTRUSTED_CODE"),"trusted base checkout is not a PR head");
+});

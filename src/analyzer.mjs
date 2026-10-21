@@ -24,10 +24,14 @@ function isExternalAction(x) {
 function isHashPinned(x) { return /@[a-f0-9]{40}$/i.test(x); }
 function containsUntrustedInterpolation(x) {
   const text = String(x || "");
-  return /\$\{\{\s*(?:github\.head_ref\b|github\.event\.(?:issue|pull_request|comment|review|head_commit|commits|discussion)(?:\.|\[|\b))[^}]*\}\}/i.test(text);
+  return /\$\{\{\s*(?:github\.head_ref\b|github\.event\.(?:issue|pull_request|comment|review_comment|review|head_commit|commits|discussion)(?:\.|\[|\b))[^}]*\}\}/i.test(text);
 }
 function containsHeadRef(x) {
-  return /\$\{\{\s*(?:github\.event\.pull_request\.head\.(?:sha|ref|repo)|github\.head_ref)\b/i.test(String(x||""));
+  const text = String(x || "");
+  // Both head.* expressions and GitHub's refs/pull/N/head fetch untrusted PR code.
+  const fromHeadExpression = /\$\{\{\s*(?:github\.event\.pull_request\.head\.(?:sha|ref|repo)|github\.head_ref)\b/i.test(text);
+  const fromPullHeadRef = /(?:^|\/)refs\/pull\/(?:\d+|\$\{\{\s*github\.event\.(?:number|pull_request\.number)\s*\}\})\/head\b/i.test(text);
+  return fromHeadExpression || fromPullHeadRef;
 }
 function isSelfHosted(x) {
   if (typeof x === "string") return x.toLowerCase() === "self-hosted";
