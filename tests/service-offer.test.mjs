@@ -75,3 +75,18 @@ test("USD alternative is also accurately priced and not recorded as a sale",()=>
   assert.match(en,/No contract, escrow or sale has been verified/);
   assert.match(ko,/아직 주문이나 수령액은 없습니다/);
 });
+
+
+test("direct VM1 MetaMask quote stays separate from legacy platform checkout",()=>{
+  const direct="https://github.com/livastic-vm2-primary-20260911/workflow-risk-check/issues/new?template=public-workflow-preflight-25-usdc.yml";
+  const en=read("docs/index.html"),ko=read("docs/ko/services.html"),md=read("README.md");
+  for(const [name,text] of [["English",en],["Korean",ko],["README",md],["sample",sample]]){
+    assert(text.includes(direct),name+" must link the original nonbinding direct buyer route");
+    assert(text.includes(expectedLink),name+" must retain the distinct original Clawlancer listing");
+  }
+  assert.match(en,/original VM1 MetaMask/);
+  assert.match(en,/No buyer has commissioned or paid for this direct review/);
+  assert.match(ko,/지급처가 다른 기존 관리형 마켓플레이스 계약/);
+  assert.match(md,/No buyer contract, paid order, or direct wallet receipt is claimed/);
+  assert.match(sample,/not money received/i);
+});
