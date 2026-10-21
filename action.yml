@@ -1,5 +1,5 @@
 name: "Workflow Risk Check CI — Local-First Security Preflight"
-description: "Check GitHub Actions YAML for risky permissions, mutable actions, and unsafe trust boundaries, with no uploads or external network calls."
+description: "Local-first GitHub Actions YAML checks for token permissions, mutable actions and PR trust boundaries. No uploads."
 author: "Workflow Risk Check"
 inputs:
   directory:

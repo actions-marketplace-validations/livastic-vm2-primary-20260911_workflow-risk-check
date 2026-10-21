@@ -90,3 +90,11 @@ test("direct VM1 MetaMask quote stays separate from legacy platform checkout",()
   assert.match(md,/No buyer contract, paid order, or direct wallet receipt is claimed/);
   assert.match(sample,/not money received/i);
 });
+
+test("Marketplace metadata description remains within published GitHub limit",()=>{
+  const metadata=read("action.yml");
+  const description=metadata.match(/^description: "([^"]+)"$/m)?.[1];
+  assert.ok(description,"action.yml must have a description");
+  assert.ok(description.length<125,"Marketplace action description must be shorter than 125 characters");
+  assert.match(description,/No uploads/);
+});
