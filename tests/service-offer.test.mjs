@@ -98,3 +98,22 @@ test("Marketplace metadata description remains within published GitHub limit",()
   assert.ok(description.length<125,"Marketplace action description must be shorter than 125 characters");
   assert.match(description,/No uploads/);
 });
+
+test("existing direct 25 USDC review has a clear pre-remediation buyer route",()=>{
+  const html=read("docs/index.html");
+  const hero=html.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)?.[1]??"";
+  assert.match(hero,/href="#preflight">Request a 25 USDC static review/);
+  const preflight=html.indexOf('id="preflight"');
+  const remediation=html.indexOf('class="service-section" id="service"');
+  assert(preflight>0&&remediation>preflight,"fixed 25 USDC offer appears before larger 149 USD PR package");
+  const buyerRoute=html.slice(preflight,remediation);
+  assert.match(buyerRoute,/Up to 3 public GitHub Actions YAML files — 25 USDC on Base/);
+  assert.match(buyerRoute,/one Korea-based human owner/);
+  assert.match(buyerRoute,/not<\/strong> a full security audit/);
+  assert.match(buyerRoute,/Google Forms stores your reply email and non-sensitive summary/);
+  assert.match(buyerRoute,/written agreement/);
+  assert.match(buyerRoute,/original VM1 MetaMask address/);
+  assert.match(buyerRoute,/SeyoqmSgtcgspZ9jJq78dLBhsq50KDbhdVGcmZP5EQCouY3Qg\/viewform/);
+  assert.match(buyerRoute,/public-workflow-preflight-25-usdc.yml/);
+  assert.match(buyerRoute,/No buyer has commissioned or paid for this direct review/);
+});
