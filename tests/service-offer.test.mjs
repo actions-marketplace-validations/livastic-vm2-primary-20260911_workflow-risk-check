@@ -35,7 +35,7 @@ test("4 USDC starter is a real original listed checkout but explicitly not recei
  const url="https://clawlancer.ai/marketplace/1be00886-ce81-4398-ab6a-d2322207a551";
  const pages=[read("docs/index.html"),read("docs/ko/services.html"),read("README.md")];
  for(const [i,html] of pages.entries()){
-  assert.equal((html.match(new RegExp(url,"g"))||[]).length,i===0?2:1,"home has one checkout plus the new result CTA");
+  assert.equal((html.match(new RegExp(url,"g"))||[]).length,i===0?2:i===1?1:2,"site has two buyer CTAs, localized site has one, README has original listing plus new early CTA");
   assert(html.includes("4 USDC"),"starter must include exact listed USDC price");
   assert(html.includes("300"),"starter must be one small workflow bounded by 300 lines");
   assert(html.includes(expectedLink),"old $25 multi-file review stays available");
@@ -116,4 +116,18 @@ test("existing direct 25 USDC review has a clear pre-remediation buyer route",()
   assert.match(buyerRoute,/SeyoqmSgtcgspZ9jJq78dLBhsq50KDbhdVGcmZP5EQCouY3Qg\/viewform/);
   assert.match(buyerRoute,/public-workflow-preflight-25-usdc.yml/);
   assert.match(buyerRoute,/No buyer has commissioned or paid for this direct review/);
+});
+
+
+test("Early README buyer path stays optional and never equates a quote with settled sales",()=>{
+ const md=read("README.md");
+ const anchor=md.indexOf("**Optional paid review (4 USDC, Base):**");
+ const features=md.indexOf("## What it does");
+ assert(anchor>0 && features>anchor && anchor<1800,"real customer path should be visible before technical README");
+ const paragraph=md.slice(anchor,features);
+ assert(paragraph.includes("1be00886-ce81-4398-ab6a-d2322207a551"));
+ assert(paragraph.includes("AI-assisted"));
+ assert(paragraph.includes("mutually agreed scope"));
+ assert(paragraph.includes("no purchase or payout has yet been verified"));
+ assert(paragraph.includes("Never send secrets or private YAML."));
 });
