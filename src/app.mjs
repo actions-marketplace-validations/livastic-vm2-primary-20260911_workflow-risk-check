@@ -1,4 +1,5 @@
 import {analyzeWorkflow} from "./analyzer.mjs";
+import {makeQuoteBrief} from "./quote-brief.mjs";
 
 const $=(id)=>document.getElementById(id);
 const input=$("workflow-input");
@@ -10,6 +11,7 @@ const status=$("analysis-status");
 const summary=$("results-summary");
 const list=$("results-list");
 const copyStatus=$("copy-status");
+const quoteStatus=$("quote-brief-status");
 const demo = `name: PR build
 on: pull_request_target
 
@@ -32,6 +34,7 @@ function reset({clearInput=false}={}){
   status.textContent="READY";
   lastReport=null;
   copyStatus.textContent="";
+  quoteStatus.textContent="";
   size.textContent=input.value.length.toLocaleString()+" characters";
 }
 function el(tag,className,text){
@@ -52,6 +55,7 @@ function showError(message){
   error.textContent=message;
   status.textContent="INVALID YAML";
   lastReport=null;
+  quoteStatus.textContent="";
 }
 function render(result){
   error.hidden=true;
@@ -105,6 +109,7 @@ function render(result){
 }
 function scan(){
   copyStatus.textContent="";
+  quoteStatus.textContent="";
   const result=analyzeWorkflow(input.value,"workflow.yml");
   if(result.error){showError(result.error);return;}
   lastReport=result;
@@ -150,5 +155,14 @@ $("copy-report").addEventListener("click",async()=>{
  if(!lastReport)return;
  try {await navigator.clipboard.writeText(markdownReport(lastReport));copyStatus.textContent="Copied!";}
  catch {copyStatus.textContent="Clipboard unavailable here. Try HTTPS or localhost.";}
+});
+$("copy-quote-brief").addEventListener("click",async()=>{
+  if(!lastReport)return;
+  try {
+    await navigator.clipboard.writeText(makeQuoteBrief(lastReport));
+    quoteStatus.textContent="Copied safe counts and rule names only. You decide whether to paste; nothing was sent.";
+  } catch {
+    quoteStatus.textContent="Clipboard unavailable. No data was sent.";
+  }
 });
 reset();
