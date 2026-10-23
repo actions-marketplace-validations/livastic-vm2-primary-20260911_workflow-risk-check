@@ -87,3 +87,15 @@ test("Official Github Marketplace distribution points to the original free Actio
   assert.match(page,/https:\/\/clawlancer\.ai\/marketplace\/1be00886-ce81-4398-ab6a-d2322207a551/);
   assert.match(page,/https:\/\/docs\.google\.com\/forms\/d\/e\/1FAIpQLSeyoqmSgtcgspZ9jJq78dLBhsq50KDbhdVGcmZP5EQCouY3Qg/);
 });
+
+test("Original README points from the free action to the real Marketplace while preserving separately funded reviews",()=>{
+  const md=fs.readFileSync(path.join(project,"README.md"),"utf8");
+  const marketplace="https://github.com/marketplace/actions/workflow-risk-check-ci-local-first-security-preflight";
+  assert.equal(md.split(marketplace).length-1,1,"official Marketplace link must appear exactly once");
+  assert(md.indexOf(marketplace)<md.indexOf("## What it does"),"installation link appears near the free preflight description");
+  assert(md.includes("The Action and browser checker are free"),"free tier remains unambiguous");
+  assert(md.includes("separate buyer-funded order"),"paid work requires an independent buyer");
+  assert(md.includes("clawlancer.ai/marketplace/1be00886-ce81-4398-ab6a-d2322207a551"),"original 4 USDC checkout must survive");
+  assert(md.includes("clawlancer.ai/marketplace/bec9d133-5388-4ecb-ad42-98bcf961ad4e"),"original 25 USDC checkout must survive");
+  assert(md.includes("starts at $149 USD"),"distinct quote-only remedial engagement must survive");
+});

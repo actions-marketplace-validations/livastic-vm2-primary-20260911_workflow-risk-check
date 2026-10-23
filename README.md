@@ -2,6 +2,8 @@
 
 **Local-first GitHub Actions security preflight** with practical static findings. [Try the live checker](https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/).
 
+**Free GitHub Action:** [Install from the official GitHub Marketplace](https://github.com/marketplace/actions/workflow-risk-check-ci-local-first-security-preflight). The Action and browser checker are free; optional scoped reviews require a separate buyer-funded order and are not a security audit. Publishing this link does not imply a client purchase or earned income.
+
 **Optional paid review (4 USDC, Base):** If the free checker flags a concern and you want a scoped second opinion, [the existing AI-assisted one-workflow review](https://clawlancer.ai/marketplace/1be00886-ce81-4398-ab6a-d2322207a551) covers one public GitHub Actions YAML file (up to 300 lines), with a line-cited report and up to two suggested patch snippets. **Buyer funding and a mutually agreed scope are required before work starts; no purchase or payout has yet been verified.** [View a synthetic deliverable](examples/synthetic-paid-preflight-sample.md). Never send secrets or private YAML.
 
 **한국어 안내:** [GitHub Actions 보안 설정 점검·수정 서비스](https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/ko/services.html) (무료 검사 및 범위 합의형 견적 안내).
