@@ -60,3 +60,19 @@ test("Relevant free scope-planning resource is contextual and disclosed",()=>{
   assert.match(ko,/보안 감사나 제휴 판매 상품이 아닙니다/);
   assert(!en.includes('</section>\\n        <section'));
 });
+
+test("Latest stable GitHub Action release tag is discoverable on public buyer page and README",()=>{
+  const homepage=fs.readFileSync(path.join(docs,"index.html"),"utf8");
+  const readme=fs.readFileSync(path.join(project,"README.md"),"utf8");
+  assert.match(homepage,/workflow-risk-check@v1\.2\.1/);
+  assert.match(readme,/workflow-risk-check@v1\.2\.1/);
+  assert.doesNotMatch(homepage,/workflow-risk-check@v1\.2\.0/);
+  assert.doesNotMatch(readme,/workflow-risk-check@v1\.2\.0/);
+});
+test("Updated checkout and privacy feature announces a new root sitemap modification",()=>{
+  assert.match(sitemap,/<loc>https:\/\/livastic-vm2-primary-20260911\.github\.io\/workflow-risk-check\/<\/loc><lastmod>2026-10-23<\/lastmod>/);
+  const page=fs.readFileSync(path.join(docs,"index.html"),"utf8");
+  assert.match(page,/id="copy-quote-brief"/);
+  assert.match(page,/id="quote-brief-status"/);
+  assert.match(page,/quote-privacy-note/);
+});

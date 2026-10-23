@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # example vetted pinned checkout commit
-      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.0
+      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.1
         with:
           directory: .github/workflows
           fail_level: high # high | medium | none
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.0
+      - uses: livastic-vm2-primary-20260911/workflow-risk-check@v1.2.1
         id: preflight
         with:
           fail_level: none
@@ -85,7 +85,7 @@ jobs:
           category: workflow-risk-check
 ```
 
-For production, pin **both** third-party actions to reviewed full commit SHAs; the `@v1.2.0` line is shown only for human readability. Restrict write permissions and avoid running untrusted PR code in a job with privileged credentials. The scanner itself makes no network calls, and reports contain finding descriptions/locations rather than full source YAML. Confirm results manually, especially policy settings and dynamic execution paths.
+For production, pin **both** third-party actions to reviewed full commit SHAs; the `@v1.2.1` line is shown only for human readability. Restrict write permissions and avoid running untrusted PR code in a job with privileged credentials. The scanner itself makes no network calls, and reports contain finding descriptions/locations rather than full source YAML. Confirm results manually, especially policy settings and dynamic execution paths.
 
 ## Worked examples and methodology
 
