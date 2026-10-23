@@ -76,3 +76,14 @@ test("Updated checkout and privacy feature announces a new root sitemap modifica
   assert.match(page,/id="quote-brief-status"/);
   assert.match(page,/quote-privacy-note/);
 });
+
+test("Official Github Marketplace distribution points to the original free Action without implying a paid order",()=>{
+  const page=fs.readFileSync(path.join(docs,"index.html"),"utf8");
+  const url="https://github.com/marketplace/actions/workflow-risk-check-ci-local-first-security-preflight";
+  assert.equal(page.split(url).length-1,1,"marketplace URL should appear once in landing");
+  const ci=page.slice(page.indexOf('id="ci"'),page.indexOf('id="preflight"'));
+  assert(ci.includes(url),"linked from free CI action section");
+  assert.match(ci,/The Action is free; optional 4 USDC or 25 USDC human-scoped reviews require a separate funded buyer order/);
+  assert.match(page,/https:\/\/clawlancer\.ai\/marketplace\/1be00886-ce81-4398-ab6a-d2322207a551/);
+  assert.match(page,/https:\/\/docs\.google\.com\/forms\/d\/e\/1FAIpQLSeyoqmSgtcgspZ9jJq78dLBhsq50KDbhdVGcmZP5EQCouY3Qg/);
+});
