@@ -6,6 +6,9 @@
 
 **Optional paid review (4 USDC, Base):** If the free checker flags a concern and you want a scoped second opinion, [the existing AI-assisted one-workflow review](https://clawlancer.ai/marketplace/1be00886-ce81-4398-ab6a-d2322207a551) covers one public GitHub Actions YAML file (up to 300 lines), with a line-cited report and up to two suggested patch snippets. **Buyer funding and a mutually agreed scope are required before work starts; no purchase or payout has yet been verified.** [View a synthetic deliverable](examples/synthetic-paid-preflight-sample.md). Never send secrets or private YAML.
 
+**Voluntary support for the free tool (not a purchase):** If this free browser checker or GitHub Action helped, maintainers can receive optional native Circle USDC on **Base mainnet, chain ID 8453** at the same original owner's verified public MetaMask receiving address `0x4e3106520E40af30870caFE78da1B1e7110eD98E`. Official native Base USDC token contract: `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913`. [Check the public address on Basescan](https://basescan.org/address/0x4e3106520E40af30870caFE78da1B1e7110eD98E). Always verify network, token and address independently before paying. A tip does **not** buy an audit, future support, source access or any deliverable; no payment is requested to use the free tool, and no paid tip has been verified or is claimed as earnings. Never share seed phrases or connect a wallet to run the checker. [Read the on-page voluntary support terms](https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/#support).
+
+
 **한국어 안내:** [GitHub Actions 보안 설정 점검·수정 서비스](https://livastic-vm2-primary-20260911.github.io/workflow-risk-check/ko/services.html) (무료 검사 및 범위 합의형 견적 안내).
 
 ## What it does
